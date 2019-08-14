@@ -54,9 +54,10 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      * @var array
      */
     protected static $proxies = [
-        'average', 'avg', 'contains', 'each', 'every', 'filter', 'first',
-        'flatMap', 'groupBy', 'keyBy', 'map', 'max', 'min', 'partition',
-        'reject', 'some', 'sortBy', 'sortByDesc', 'sum', 'unique',
+        'average', 'avg', 'contains', 'each', 'every', 'exists', 'filter',
+        'first', 'flatMap', 'groupBy', 'keyBy', 'map', 'max', 'min',
+        'partition', 'reject', 'some', 'sortBy', 'sortByDesc', 'sum',
+        'unique',
     ];
 
     /**
@@ -518,6 +519,31 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         }
 
         return $this->every($this->operatorForWhere(...func_get_args()));
+    }
+
+    /**
+     * Determine if at least one item in the collection passes the given test.
+     *
+     * @param  string|callable  $key
+     * @param  mixed  $operator
+     * @param  mixed  $value
+     * @return bool
+     */
+    public function exists($key, $operator = null, $value = null)
+    {
+        if (func_num_args() === 1) {
+            $callback = $this->valueRetriever($key);
+
+            foreach ($this->items as $k => $v) {
+                if ($callback($v, $k)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return $this->exists($this->operatorForWhere(...func_get_args()));
     }
 
     /**
